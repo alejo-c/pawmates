@@ -1,0 +1,37 @@
+html {
+  background-color: #343a40;
+  margin: 0;
+  padding: 0;
+}
+
+.table-responsive {
+  overflow: auto;
+  height: 76.3vh;
+}
+
+@media (min-width: 577px) {
+  .table-responsive {
+    height: 80vh;
+  }
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.row .card-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 17em;
+}
+
+.card-img-top {
+  height: 12em;
+  object-fit: cover;
+}
+
+.buttons {
+  margin-top: auto;
+}
