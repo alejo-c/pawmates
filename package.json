@@ -1,0 +1,22 @@
+{
+  "name": "pawmates",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api/src/main.js",
+  "workspaces": [
+    "api",
+    "app"
+  ],
+  "scripts": {
+    "start": "concurrently \"npm run start:api\" \"npm run start:app\"",
+    "start:api": "cd api && npm start",
+    "start:app": "cd app && npm run dev",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:app\"",
+    "dev:api": "cd api && npm run dev",
+    "dev:app": "cd app && npm run dev",
+    "build": "cd app && npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
