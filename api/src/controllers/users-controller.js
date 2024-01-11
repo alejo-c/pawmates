@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import { User, getUserById } from '../models/user-model.js'
 
 const hashPassword = async password => {
@@ -47,14 +48,18 @@ export const loginUser = async (req, res) => {
     })
 
     const isPasswordValid = await bcrypt.compare(req.body.password, user.password)
-    if (!isPasswordValid)
-        return res.status(401).jsonPretty({ type: 'error', message: 'Invalid password' })
+    if (!isPasswordValid) return res.status(401).jsonPretty({
+        type: 'error',
+        message: 'Invalid password'
+    })
 
-    req.session.user = user
+    const token = jwt.sign({ user }, process.env.SESSION_SECRET, { expiresIn: '1h' })
+    req.session.user = { ...user.dataValues, token }
+
     res.status(200).jsonPretty({
         type: 'success',
         message: `User ${user.name} logged in successfully`,
-        user
+        user: { ...user.dataValues, token }
     })
 }
 
@@ -65,7 +70,10 @@ export const logoutUser = (req, res) => {
     })
 
     req.session.destroy()
-    res.status(200).jsonPretty({ type: 'success', message: 'User logged out successfully' })
+    res.status(200).jsonPretty({
+        type: 'success',
+        message: 'User logged out successfully'
+    })
 }
 
 export const readUsers = async (req, res) => {

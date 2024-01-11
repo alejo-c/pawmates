@@ -1,6 +1,6 @@
 import { effect, signal } from '@preact/signals-react'
 import { useSignals } from '@preact/signals-react/runtime'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 
 import Pet, { emptyPet } from '../types/pet'
 import { localhostURL as URL } from '../constants/api.constants'
@@ -8,19 +8,30 @@ import petTypes, { petGenders } from '../constants/pet.constants'
 import Icon from '../components/Icon'
 import LoadingSpinner from '../components/LoadingSpinner'
 import apiRequest from '../lib/axiosrequests'
+import User from '../types/user'
+import getLogged from '../lib/session'
 
 const pets = signal<Pet[]>([])
 const adoptedPet = signal<Pet>(emptyPet)
+const loggedUser = signal<User | null>(null)
 
-const getData = () =>
-    apiRequest({ method: 'GET', url: `${URL}/pets` })
+const getData = () => {
+    if (loggedUser.value === null) return
+    apiRequest({
+        method: 'GET', url: `${URL}/pets`,
+        headers: { 'Authorization': `Bearer ${loggedUser.value.token}` },
+    })
         .then(res => pets.value = res.data.collection)
         .catch(err => console.log(err))
+}
 
 effect(getData)
+effect(() => loggedUser.value = getLogged())
 
 const HomePage = () => {
     useSignals()
+
+    if (loggedUser.value === null) return <Navigate to='/login' />
 
     if (pets.value.length === 0) return <LoadingSpinner />
 

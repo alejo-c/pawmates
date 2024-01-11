@@ -1,5 +1,6 @@
 import express from 'express'
 import * as controller from '../controllers/users-controller.js'
+import { authenticateToken, ensureLoggedIn } from '../middlewares/session-middlewares.js'
 
 const router = express.Router()
 

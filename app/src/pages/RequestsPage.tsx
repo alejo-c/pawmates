@@ -8,12 +8,14 @@ import { confirmAlert, messageAlert } from '../lib/sweetalerts'
 import apiRequest from '../lib/axiosrequests'
 import AdoptionRequest, { emptyRequest } from '../types/adoptionrequest'
 import Pet, { emptyPet } from '../types/pet'
-import User, { emptyUser } from '../types/adopter'
+import User, { emptyUser } from '../types/user'
 
 import ActionButton from '../components/ActionButton'
 import Icon from '../components/Icon'
 import Select from '../components/Select'
 import Table from '../components/Table'
+import { Navigate } from 'react-router-dom'
+import getLogged from '../lib/session'
 
 type RequestParam = { url?: string, pet_id?: number, adoption_id?: number }
 
@@ -23,6 +25,7 @@ const users = signal<User[]>([])
 
 const request = signal<AdoptionRequest>(emptyRequest)
 const modalOperation = signal('create')
+const loggedUser = signal<User | null>(null)
 
 const getData = () => {
     apiRequest({ method: 'GET', url: '/adoption-requests' })
@@ -70,11 +73,15 @@ const getAdopter = (adopter_id: number) => {
 }
 
 effect(getData)
+effect(() => loggedUser.value = getLogged())
 
 const RequestsPage = () => {
     useSignals()
+
+    if (loggedUser.value === null) return <Navigate to='/login' />
+
     return <>
-        <div className='container-fluid'>
+        <div className='container-fluid mt-5'>
             <div className='row mt-3 col-sm-4 offset-sm-4 d-grid mx-auto'>
                 <RegisterRequestButton />
             </div>

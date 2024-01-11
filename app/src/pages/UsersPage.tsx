@@ -7,15 +7,18 @@ import Table from '../components/Table'
 import ActionButton from '../components/ActionButton'
 import { confirmAlert, messageAlert } from '../lib/sweetalerts'
 import apiRequest from '../lib/axiosrequests'
-import User, { emptyUser } from '../types/adopter'
+import User, { emptyUser } from '../types/user'
 import Select, { Option } from '../components/Select'
 import userRoles from '../constants/user.constants'
+import getLogged from '../lib/session'
+import { Navigate } from 'react-router-dom'
 
 type RequestParam = { url?: string, type?: string, name?: string, age?: string }
 
-export const users = signal<User[]>([])
+const users = signal<User[]>([])
 const user = signal<User>(emptyUser)
 const modalOperation = signal('create')
+const loggedUser = signal<User | null>(null)
 
 const getUsers = () => apiRequest({ method: 'GET', url: '/users' })
     .then(res => users.value = res.data.collection)
@@ -41,12 +44,15 @@ const openUserModal = (operation: string, currentUser: User) =>
     })
 
 effect(getUsers)
+effect(() => loggedUser.value = getLogged())
 
 const UsersPage = () => {
     useSignals()
 
+    if (loggedUser.value === null) return <Navigate to='/login' />
+
     return <>
-        <div className='container-fluid'>
+        <div className='container-fluid mt-5'>
             <div className='row mt-3'>
                 <div className='col-sm-4 offset-sm-4 d-grid mx-auto'>
                     <RegisterUserButton />
@@ -76,9 +82,10 @@ const UsersTable = () => <>
         head={
             <tr>
                 <th className='col-1'>ID</th>
-                <th className='col-2'>NAME</th>
-                <th className='col-2'>ADDRESS</th>
-                <th className='col-2'>CONTACT</th>
+                <th className='col-1'>ROLE</th>
+                <th className='col-1'>NAME</th>
+                <th className='col-1'>EMAIL</th>
+                <th className='col-1'>ADDRESS</th>
                 <th className='col-1'>ACTIONS</th>
             </tr>
         }
@@ -87,10 +94,12 @@ const UsersTable = () => <>
                 <UserRow key={userRow.id} userRow={userRow} />
             )
         }
+        colSpan={6}
     />
 </>
 
 const UserRow: React.FC<{ userRow: User }> = ({ userRow }) => {
+    const role = userRoles.get(userRow.role)
 
     const deleteUser = () =>
         sendRequest('DELETE', { url: `${URL}/delete/${userRow.id}` })
@@ -107,7 +116,7 @@ const UserRow: React.FC<{ userRow: User }> = ({ userRow }) => {
     return <>
         <tr>
             <th className='text-center'>{userRow.id}</th>
-            <td>{userRow.role}</td>
+            <td>{role}</td>
             <td>{userRow.name}</td>
             <td>{userRow.email}</td>
             <td>{userRow.address}</td>

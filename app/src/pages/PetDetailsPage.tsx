@@ -1,6 +1,6 @@
 import { effect, signal } from '@preact/signals-react'
 import { useSignals } from '@preact/signals-react/runtime'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 
 import { emptyPet } from '../types/pet'
 import petTypes, { petGenders } from '../constants/pet.constants'
@@ -10,10 +10,13 @@ import Icon from '../components/Icon'
 import LoadingSpinner from '../components/LoadingSpinner'
 import apiRequest from '../lib/axiosrequests'
 import NotFoundPage from './NotFoundPage'
+import User from '../types/user'
+import getLogged from '../lib/session'
 
 const pet = signal(emptyPet)
 const petId = signal('')
 const error = signal('')
+const loggedUser = signal<User | null>(null)
 
 const getData = async () => {
     pet.value = emptyPet
@@ -25,9 +28,13 @@ const getData = async () => {
 }
 
 effect(getData)
+effect(() => loggedUser.value = getLogged())
 
 const PetDetailsPage = () => {
     useSignals()
+
+    if (loggedUser.value === null) return <Navigate to='/login' />
+
     const { id } = useParams()
     petId.value = id!
 
@@ -50,7 +57,7 @@ const PetDetailsPage = () => {
     }
 
     return <>
-        <div className='m-md-5 m-1'>
+        <div className='m-md-5 m-1 mt-5'>
             <div className='card'>
                 <div className='card-header'>
                     <Link to='/'>

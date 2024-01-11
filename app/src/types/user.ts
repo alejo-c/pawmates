@@ -1,15 +1,44 @@
-type Adopter = {
+type User = {
     id: number
+    role: string
     name: string
+    email: string
+    password: string
     address: string
-    contact: string
+    token?: string
 }
 
-export const emptyAdopter = {
+export type UserCredentials = {
+    email: string
+    password: string
+}
+
+export type UserInfo = {
+    name: string
+    email: string
+    password: string
+    address: string
+}
+
+export const emptyUser = {
     id: 0,
+    role: '',
     name: '',
+    email: '',
+    password: '',
     address: '',
-    contact: ''
 }
 
-export default Adopter
+export const emptyUserCredentials = {
+    email: '',
+    password: '',
+}
+
+export const emptyUserInfo = {
+    name: '',
+    email: '',
+    password: '',
+    address: '',
+}
+
+export default User

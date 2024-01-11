@@ -11,10 +11,14 @@ import adoptionStatuses from '../constants/request.constants'
 import apiRequest from '../lib/axiosrequests'
 import Pet, { emptyPet } from '../types/pet'
 import { AxiosRequestConfig } from 'axios'
+import { Navigate } from 'react-router-dom'
+import getLogged from '../lib/session'
+import User from '../types/user'
 
 const pets = signal<Pet[]>([])
 const pet = signal<Pet>(emptyPet)
 const modalOperation = signal('create')
+const loggedUser = signal<User | null>(null)
 
 const getPets = () => apiRequest({ method: 'GET', url: '/pets' })
     .then(res => pets.value = res.data.collection)
@@ -42,11 +46,15 @@ const openPetModal = (operation: string, currentPet: Pet) =>
     })
 
 effect(getPets)
+effect(() => loggedUser.value = getLogged())
 
 const PetsPage = () => {
     useSignals()
+
+    if (loggedUser.value === null) return <Navigate to='/login' />
+
     return <>
-        <div className='container-fluid'>
+        <div className='container-fluid mt-5'>
             <div className='row mt-3'>
                 <div className='col-sm-4 offset-sm-4 d-grid mx-auto'>
                     <RegisterPetButton />
